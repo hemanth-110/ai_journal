@@ -8,7 +8,7 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/history/${userId}`).then(res => {
+    axios.get(`/api/history/${userId}`).then(res => {
       setMessages(res.data);
     });
   }, []);
@@ -19,7 +19,7 @@ function App() {
     const userMessage = { sender: 'user', message: input };
     setMessages(prev => [...prev, userMessage]);
 
-    const res = await axios.post('http://localhost:5000/api/message', {
+    const res = await axios.post('/api/message', {
       userId,
       message: input,
     });
