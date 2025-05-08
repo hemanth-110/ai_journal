@@ -54,4 +54,8 @@ app.get('/history/:userId', async (req, res) => {
   }
 });
 
-module.exports = serverless(app);
+// ... all the same code above ...
+
+const handler = serverless(app);
+module.exports = app;
+module.exports.handler = handler;
