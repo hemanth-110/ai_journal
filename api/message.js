@@ -24,7 +24,7 @@ const GEMINI_API_KEY = 'AIzaSyBVc4oFnf6ZX2vLG8yjycLXI8zAEAM000w';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 // 👇 No `/api` prefix inside routes
-app.post('/message', async (req, res) => {
+app.post('/', async (req, res) => {
   try {
     const { userId, message } = req.body;
 
