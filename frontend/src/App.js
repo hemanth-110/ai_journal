@@ -8,15 +8,13 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    axios.get(`/api/history/${userId}`)
-      .then(res => {
-        const data = Array.isArray(res.data) ? res.data : res.data.messages || [];
-        setMessages(data);
-      })
-      .catch(err => {
-        console.error('Error fetching history:', err);
-        setMessages([]);
-      });
+    axios.get(`/api/message/history/${userId}`).then(res => {
+      const data = Array.isArray(res.data) ? res.data : res.data.messages || [];
+      setMessages(data);
+    }).catch(err => {
+      console.error('Error fetching history:', err);
+      setMessages([]);
+    });
   }, []);
 
   const sendMessage = async () => {
@@ -26,13 +24,13 @@ function App() {
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      const res = await axios.post('/api/message', {
+      const res = await axios.post('/api/message/message', {
         userId,
         message: input,
       });
 
       const aiMessage = { sender: 'ai', message: res.data.reply };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => [...prev, userMessage, aiMessage]);
     } catch (error) {
       console.error('Failed to send message:', error);
     }
