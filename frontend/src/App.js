@@ -8,9 +8,19 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    axios.get(`/api/history/${userId}`).then(res => {
-      setMessages(res.data);
-    });
+    useEffect(() => {
+      axios.get(`/api/history/${userId}`).then(res => {
+        if (Array.isArray(res.data)) {
+          setMessages(res.data);
+        } else {
+          console.error('Unexpected history response:', res.data);
+          setMessages([]);
+        }
+      }).catch(err => {
+        console.error('API error:', err);
+        setMessages([]);
+      });
+    }, []);
   }, []);
 
   const sendMessage = async () => {
