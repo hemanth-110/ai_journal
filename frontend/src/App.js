@@ -8,36 +8,40 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    useEffect(() => {
-      axios.get(`/api/history/${userId}`).then(res => {
-        if (Array.isArray(res.data)) {
-          setMessages(res.data);
-        } else {
-          console.error('Unexpected history response:', res.data);
-          setMessages([]);
-        }
-      }).catch(err => {
-        console.error('API error:', err);
-        setMessages([]);
-      });
-    }, []);
+    axios.get(`/api/history/${userId}`).then(res => {
+      console.log('History response:', res.data); // ← Add this
+      // Ensure we always get an array
+      const data = Array.isArray(res.data) ? res.data : res.data.messages || [];
+      setMessages(data);
+    }).catch(err => {
+      console.error('Error fetching history:', err);
+      setMessages([]); // fallback to empty
+    });
   }, []);
+  
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-
+  
     const userMessage = { sender: 'user', message: input };
     setMessages(prev => [...prev, userMessage]);
-
-    const res = await axios.post('/api/message', {
-      userId,
-      message: input,
-    });
-
-    setMessages(prev => [...prev, userMessage, { sender: 'ai', message: res.data.reply }]);
+  
+    try {
+      const res = await axios.post('/api/message', {
+        userId,
+        message: input,
+      });
+  
+      const aiMessage = { sender: 'ai', message: res.data.reply };
+      setMessages(prev => [...prev, userMessage, aiMessage]);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
+  
     setInput('');
   };
 
+  
   return (
     <div className="h-screen flex">
       <div className="w-1/3 bg-gray-100 p-4">
@@ -55,7 +59,7 @@ function App() {
       </div>
       <div className="w-2/3 flex flex-col">
         <div className="flex-1 p-4 overflow-y-auto">
-          {messages.map((msg, idx) => (
+          {Array.isArray(messages) && messages.length > 0 && messages.map((msg, idx) => (
             <div key={idx} className={`my-2 ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
               <span className={`inline-block px-4 py-2 rounded-lg ${msg.sender === 'user' ? 'bg-blue-200' : 'bg-gray-200'}`}>
                 {msg.message}
