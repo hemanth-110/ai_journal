@@ -8,54 +8,42 @@ function App() {
   const [input, setInput] = useState('');
 
   useEffect(() => {
-    axios.get(`/api/history/${userId}`).then(res => {
-      console.log('History response:', res.data); // ← Add this
-      // Ensure we always get an array
-      const data = Array.isArray(res.data) ? res.data : res.data.messages || [];
-      setMessages(data);
-    }).catch(err => {
-      console.error('Error fetching history:', err);
-      setMessages([]); // fallback to empty
-    });
+    axios.get(`/api/history/${userId}`)
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : res.data.messages || [];
+        setMessages(data);
+      })
+      .catch(err => {
+        console.error('Error fetching history:', err);
+        setMessages([]);
+      });
   }, []);
-  
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-  
+
     const userMessage = { sender: 'user', message: input };
     setMessages(prev => [...prev, userMessage]);
-  
+
     try {
       const res = await axios.post('/api/message', {
         userId,
         message: input,
       });
-  
+
       const aiMessage = { sender: 'ai', message: res.data.reply };
-      setMessages(prev => [...prev, userMessage, aiMessage]);
+      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error('Failed to send message:', error);
     }
-  
+
     setInput('');
   };
 
-  
   return (
     <div className="h-screen flex">
       <div className="w-1/3 bg-gray-100 p-4">
         <h2 className="text-xl font-bold">Journal Assistant</h2>
-        {/* <p className="text-sm text-gray-600">Options:</p>
-        <ul className="mt-2 space-y-2">
-          {['Summarize my day', 'Give me motivation for tomorrow', 'What can I improve this week?'].map(prompt => (
-            <li key={prompt}>
-              <button onClick={() => setInput(prompt)} className="text-blue-600 underline">
-                {prompt}
-              </button>
-            </li>
-          ))}
-        </ul> */}
       </div>
       <div className="w-2/3 flex flex-col">
         <div className="flex-1 p-4 overflow-y-auto">
